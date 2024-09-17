@@ -1,0 +1,73 @@
+Sketchy README
+
+Overview:
+My program has an App class containing a PaneOrganizer class, in which
+the root BorderPane is created. PaneOrganizer handles the visual aspects of the
+GUI (organizes the app's layout by setting up the panes), but handling user interaction
+with buttons (or the ColorPicker) and instantiating them is delegated to the Control class,
+appropriate helper methods of which are called whenever corresponding panes
+are created upon instantiation of the PaneOrganizer class. The PaneOrganizer class also contains an
+instance of the top-level Sketchy class overseeing the overall logic behind the app. Sketchy
+is associated with the main sketchPane, so that it can call methods on it, to f.e.
+add elements visually to the "canvas".
+
+The Sketchy class contains instances of SketchyRectangles,
+SketchyEllipses, and Curved Lines; the first two implement the SketchyShape interface
+which allows for generic coding and calling command-related methods
+polymorphically without having to specify a particular shape's type (resizing,
+rotating, translating them, etc.), as these actions are called on any shape that's currently
+selected and stored as the isSelected instance variable.
+
+All of the visual elements of the canvas (SketchyRectangles, SketchyEllipses, and CurvedLines) implement the Savable
+interface which allows for a save method to be called on all elements currently visible on the sketchPane,
+as it iterates through all the Savables of the elements arraylist and calls their save methods.
+
+My program also has separate command classes responsible for handling the undo/redo methods
+called whenever a user clicks on a corresponding button. All of these classes
+(ChangeColor, CreateShape, Delete, DrawLine, Lower, Raise, Resize, Rotate, Translate) implement the
+Command interface that defines the undo and redo methods, which both enables them to be
+stored in appropriate stacks corresponding to the history of user's interactions with the pane,
+and for these methods to be called on them regardless of their actual type.
+
+Design Choices:
+While PaneOrganizer class handles the visual organization of Sketchy, Control is responsible for
+user interaction and instantiating buttons, radio buttons, and the color picker. Depending on
+which radio button is being clicked on, the value of an enum instance variable corresponding to
+the currently selected option is reassigned, so that appropriate methods from the sketchy class can be called
+from within a switch statement. As explained in the class comments, I've decided to limit
+my enums to just those corresponding to radio buttons because of complicated association that would be
+required if I were to create enums for all the buttons (the order
+of pane creation would have to be changed, or it would require a very tedious process of adding pane's additional
+elements manually). It's also beneficial in terms of keeping the Sketchy class concise,
+as the number of lines of code is greatly limited by the lack of unnecessary switch statements :)
+
+In my top-level Sketchy class, I have two arraylists (since the number of elements eventually
+added to them is unknown upon their instantiation, and will be likely modified by the user),
+for both SketchyShape shapes (Rectangles, Ellipses), and Savable elements (shapes and CurvedLines).
+The former is used for calling appropriate methods regarding e.g. shape actions without
+having to specify a selected shape's type, while the latter is particularly useful
+for preserving the current state of the canvas and eventually restoring it via the load method, as the
+save method dependent on the history of user's interaction with the pane iterates through all Savable elements
+to "write them in" to the file. Crucially, whenever a shape is to be selected by the user upon a mouse
+click, the select() method iterates through the shapes arraylist from top to bottom, so that the
+uppermost one is selected by the user.
+
+The Command interface is implemented by all commands corresponding to actions that can be performed
+on shapes. Instances of these commands are usually instantiated after changes to shape's properties are made,
+and take in their initial values previously stored as instance variables in the Sketchy class as parameters,
+while the new values are instantiated in their constructors by accessing the current state of a shape.
+Since both the undo- and redo- stacks take in commands (which enables for the preservation of sketchPane's current
+state and for it to be later restored through the load method), whenever
+an instance of a Command class is instantiated, a "performAction" helper method is called - a shortcut
+for pushing the command to the undoStack, and clearing the redoStack.
+
+All methods are further explained in class comments!
+
+DEBUGGING COLLABORATORS
+None!
+
+Known Bugs: The rectangle weirdly glitches when it's simultaneously resized and rotated
+- I've been reassured during debugging hours that it's nothing to worry about, but I'm including
+it just in case!
+
+Hours Spent: 70
